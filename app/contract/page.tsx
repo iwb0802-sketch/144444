@@ -10,6 +10,10 @@ export default function ContractPage() {
   const [drawing, setDrawing] = useState(false);
   const [agree, setAgree] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     contractType: "연주자",
@@ -59,6 +63,57 @@ export default function ContractPage() {
     c.getContext("2d")?.clearRect(0, 0, c.width, c.height);
   };
 
+  const sendOtp = async () => {
+    setError("");
+    if (!form.phone) {
+      alert("연락처를 먼저 입력해주세요.");
+      return;
+    }
+
+    setOtpLoading(true);
+    const res = await fetch("/api/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: form.phone })
+    });
+    const data = await res.json().catch(() => ({}));
+    setOtpLoading(false);
+
+    if (!res.ok) {
+      setError(data.message || "인증번호 발송에 실패했습니다.");
+      return;
+    }
+
+    setOtpSent(true);
+    setOtpVerified(false);
+    alert("인증번호를 문자로 발송했습니다.");
+  };
+
+  const verifyOtp = async () => {
+    setError("");
+    if (!otpCode) {
+      alert("인증번호를 입력해주세요.");
+      return;
+    }
+
+    setOtpLoading(true);
+    const res = await fetch("/api/verify-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: form.phone, code: otpCode })
+    });
+    const data = await res.json().catch(() => ({}));
+    setOtpLoading(false);
+
+    if (!res.ok) {
+      setError(data.message || "인증번호 확인에 실패했습니다.");
+      return;
+    }
+
+    setOtpVerified(true);
+    alert("휴대폰 인증이 완료되었습니다.");
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -68,6 +123,11 @@ export default function ContractPage() {
 
     if (!form.name || !form.phone || !form.eventDate || !agree) {
       alert("성명, 연락처, 행사일, 동의 체크는 필수입니다.");
+      return;
+    }
+
+    if (!otpVerified) {
+      alert("제출 전 휴대폰 인증을 완료해주세요.");
       return;
     }
 
@@ -135,7 +195,18 @@ export default function ContractPage() {
         eventDate: form.eventDate,
         fee: form.fee
       })
-    }).catch((err) => console.error("SMS request failed", err));
+    }).catch((err) => console.error("Admin SMS request failed", err));
+
+    fetch("/api/notify-user-sms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        phone: form.phone,
+        contractType: form.contractType,
+        eventDate: form.eventDate
+      })
+    }).catch((err) => console.error("User SMS request failed", err));
 
     setSaving(false);
     router.push(`/complete?id=${data.id}`);
@@ -145,7 +216,7 @@ export default function ContractPage() {
     <main className="container">
       <form className="card" onSubmit={submit}>
         <h1 className="title">이너스뮤직 계약서 작성</h1>
-        <p className="desc">제출하면 Supabase DB에 저장되고 관리자 문자 알림 및 구글드라이브 백업이 진행됩니다.</p>
+        <p className="desc">계약서 작성 후 휴대폰 인증을 완료하면 제출됩니다. 제출 후 관리자와 작성자에게 문자가 발송됩니다.</p>
 
         {error && <div className="alert">{error}</div>}
 
@@ -214,6 +285,30 @@ export default function ContractPage() {
             />
           </div>
           <button type="button" className="btn2" onClick={clearSign}>서명 지우기</button>
+        </div>
+
+        <div className="field" style={{background:"#f8fafc", padding:16, borderRadius:12, border:"1px solid #e5e7eb"}}>
+          <span>휴대폰 인증 *</span>
+          <p style={{margin:"0 0 10px", color:"#666", fontSize:14}}>
+            제출 전 입력한 연락처로 인증번호를 발송하고 확인합니다.
+          </p>
+          <div style={{display:"flex", gap:8, flexWrap:"wrap"}}>
+            <button type="button" className="btn2" onClick={sendOtp} disabled={otpLoading || saving}>
+              {otpSent ? "인증번호 재발송" : "인증번호 발송"}
+            </button>
+            <input
+              className="input"
+              style={{maxWidth:180}}
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value)}
+              placeholder="6자리 입력"
+              disabled={!otpSent || otpVerified}
+            />
+            <button type="button" className="btn2" onClick={verifyOtp} disabled={!otpSent || otpVerified || otpLoading || saving}>
+              {otpVerified ? "인증 완료" : "인증 확인"}
+            </button>
+          </div>
+          {otpVerified && <div className="success" style={{marginTop:10}}>휴대폰 인증이 완료되었습니다.</div>}
         </div>
 
         <label style={{display:"flex", gap:10, background:"#f5f5f5", padding:14, borderRadius:12, marginBottom:18}}>
