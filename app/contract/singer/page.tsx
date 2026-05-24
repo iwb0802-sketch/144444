@@ -16,6 +16,7 @@ export default function ContractPage() {
   const [otpCode, setOtpCode] = useState("");
   const [otpLoading, setOtpLoading] = useState(false);
   const [error, setError] = useState("");
+  const [otpError, setOtpError] = useState("");
   const [form, setForm] = useState({ name: "", phone: "", bankInfo: "", memo: "" });
 
   const update = (key: string, value: string) => setForm((p) => ({ ...p, [key]: value }));
@@ -53,8 +54,9 @@ export default function ContractPage() {
 
   const sendOtp = async () => {
     setError("");
+    setOtpError("");
     if (!form.phone) {
-      alert("연락처를 먼저 입력해주세요.");
+      setOtpError("연락처를 먼저 입력해주세요.");
       return;
     }
     setOtpLoading(true);
@@ -66,7 +68,7 @@ export default function ContractPage() {
     const data = await res.json().catch(() => ({}));
     setOtpLoading(false);
     if (!res.ok) {
-      setError(data.message || "인증번호 발송에 실패했습니다.");
+      setOtpError(data.message || "인증번호 발송에 실패했습니다.");
       return;
     }
     setOtpSent(true);
@@ -76,8 +78,9 @@ export default function ContractPage() {
 
   const verifyOtp = async () => {
     setError("");
+    setOtpError("");
     if (!otpCode) {
-      alert("인증번호를 입력해주세요.");
+      setOtpError("인증번호를 입력해주세요.");
       return;
     }
     setOtpLoading(true);
@@ -89,7 +92,7 @@ export default function ContractPage() {
     const data = await res.json().catch(() => ({}));
     setOtpLoading(false);
     if (!res.ok) {
-      setError(data.message || "인증번호 확인에 실패했습니다.");
+      setOtpError(data.message || "인증번호 확인에 실패했습니다.");
       return;
     }
     setOtpVerified(true);
@@ -269,6 +272,11 @@ export default function ContractPage() {
         <div className="field" style={{background:"#f8fafc", padding:16, borderRadius:12, border:"1px solid #e5e7eb"}}>
           <span>휴대폰 인증 *</span>
           <p style={{margin:"0 0 10px", color:"#666", fontSize:14}}>제출 전 입력한 연락처로 인증번호를 발송하고 확인합니다.</p>
+          {otpError && (
+            <div className="alert" style={{marginTop:0, marginBottom:10}}>
+              {otpError}
+            </div>
+          )}
           <div style={{display:"flex", gap:8, flexWrap:"wrap"}}>
             <button type="button" className="btn2" onClick={sendOtp} disabled={otpLoading || saving}>{otpSent ? "인증번호 재발송" : "인증번호 발송"}</button>
             <input className="input" style={{maxWidth:180}} value={otpCode} onChange={(e) => setOtpCode(e.target.value)} placeholder="6자리 입력" disabled={!otpSent || otpVerified} />
