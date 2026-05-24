@@ -13,21 +13,13 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    const res = await fetch("/api/admin-login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password })
-    });
-
+    const res = await fetch("/api/admin-login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
     setLoading(false);
-
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setError(data.message || "로그인 실패");
       return;
     }
-
     router.push("/admin");
   };
 
@@ -39,17 +31,9 @@ export default function AdminLoginPage() {
         {error && <div className="alert">{error}</div>}
         <label className="field">
           <span>관리자 비밀번호</span>
-          <input
-            className="input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoFocus
-          />
+          <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />
         </label>
-        <button className="btn" style={{width:"100%"}} disabled={loading}>
-          {loading ? "확인 중..." : "로그인"}
-        </button>
+        <button className="btn" style={{width:"100%"}} disabled={loading}>{loading ? "확인 중..." : "로그인"}</button>
       </form>
     </main>
   );

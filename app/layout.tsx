@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "이너스 계약서",
-  description: "연주자/사회자 계약서 작성",
+  title: "BNS / INUS 뮤직 전자계약",
+  description: "전자계약 시스템",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

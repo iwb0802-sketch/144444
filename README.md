@@ -1,19 +1,13 @@
-# BNS / INUS 뮤직 전자계약 시스템 v2
+# BNS / INUS 뮤직 전자계약 시스템 - Clean Final
 
-3종 건별 프리랜서 계약서 버전입니다.
+부분 덮어쓰기 금지. 이 ZIP 전체를 기준으로 배포하세요.
 
-## 계약서
-- /contract/singer 축가자 계약서
-- /contract/host 사회자 계약서
-- /contract/player 연주자 계약서
-
-## 기능
-- 메인 카드형 UI
-- OTP 휴대폰 인증
-- 전자서명
-- 통합 동의
-- Supabase DB 저장
-- 관리자 문자 알림
-- 작성자 제출완료 문자
-- Google Drive PDF 백업
-- 관리자 로그인 및 목록 확인
+## Vercel 환경변수
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- ADMIN_PASSWORD
+- ADMIN_PHONE
+- SOLAPI_API_KEY
+- SOLAPI_API_SECRET
+- SOLAPI_FROM
+- DRIVE_WEBHOOK_URL

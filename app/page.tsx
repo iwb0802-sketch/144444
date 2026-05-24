@@ -1,24 +1,9 @@
 import Link from "next/link";
 
 const contracts = [
-  {
-    href: "/contract/singer",
-    icon: "🎤",
-    title: "축가자 계약서",
-    desc: "축가 진행을 위한 건별 프리랜서 출연 계약서입니다."
-  },
-  {
-    href: "/contract/host",
-    icon: "🎙️",
-    title: "사회자 계약서",
-    desc: "본식 사회 진행 및 사전 대본 협의를 포함한 건별 계약서입니다."
-  },
-  {
-    href: "/contract/player",
-    icon: "🎻",
-    title: "연주자 계약서",
-    desc: "웨딩 및 행사 연주 진행을 위한 건별 프리랜서 계약서입니다."
-  }
+  { href: "/contract/singer", icon: "🎤", title: "축가자 계약서", desc: "축가자 등록 및 출연 조건에 관한 전자계약서입니다." },
+  { href: "/contract/host", icon: "🎙️", title: "사회자 계약서", desc: "사회자 등록 및 진행 조건에 관한 전자계약서입니다." },
+  { href: "/contract/player", icon: "🎻", title: "연주자 계약서", desc: "연주자 등록 및 연주 조건에 관한 전자계약서입니다." }
 ];
 
 export default function Home() {
@@ -31,7 +16,6 @@ export default function Home() {
           휴대폰 인증과 전자서명을 통해 계약서를 간편하게 제출할 수 있습니다.
           제출 완료 후 문자 알림과 Google Drive 백업이 자동으로 진행됩니다.
         </p>
-
         <div className="contractGrid">
           {contracts.map((item) => (
             <Link className="contractCard" href={item.href} key={item.href}>
