@@ -1,16 +1,1 @@
-
-export type ContractData = {
-  id: string;
-  contractType: string;
-  name: string;
-  phone: string;
-  eventDate: string;
-  eventTime: string;
-  eventPlace: string;
-  roleDetail: string;
-  fee: string;
-  bankInfo: string;
-  memo: string;
-  signature: string;
-  submittedAt: string;
-};
+export type ContractData = { id:string; contract_type:string; name:string; phone:string; event_date:string|null; event_time:string|null; event_place:string|null; role_detail:string|null; fee:string|null; bank_info:string|null; memo:string|null; signature:string|null; submit_ip:string|null; user_agent:string|null; submitted_at:string; };
