@@ -102,6 +102,29 @@ export default function ContractPage() {
       return;
     }
 
+    const backupPayload = {
+      id: data.id,
+      name: form.name,
+      phone: form.phone,
+      contractType: form.contractType,
+      eventDate: form.eventDate,
+      eventTime: form.eventTime,
+      eventPlace: form.eventPlace,
+      roleDetail: form.roleDetail,
+      fee: form.fee,
+      bankInfo: form.bankInfo,
+      memo: form.memo,
+      signature,
+      submittedAt: new Date().toLocaleString("ko-KR"),
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : ""
+    };
+
+    fetch("/api/backup-drive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(backupPayload)
+    }).catch((err) => console.error("Drive backup request failed", err));
+
     fetch("/api/notify-sms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -122,7 +145,7 @@ export default function ContractPage() {
     <main className="container">
       <form className="card" onSubmit={submit}>
         <h1 className="title">이너스뮤직 계약서 작성</h1>
-        <p className="desc">제출하면 Supabase DB에 저장되고 관리자에게 문자 알림이 발송됩니다.</p>
+        <p className="desc">제출하면 Supabase DB에 저장되고 관리자 문자 알림 및 구글드라이브 백업이 진행됩니다.</p>
 
         {error && <div className="alert">{error}</div>}
 
