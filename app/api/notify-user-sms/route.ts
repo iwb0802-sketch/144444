@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   const text =
     `[BNS,INUS 뮤직]\n` +
-    `${name}님, ${contractType} 계약서 제출이 정상 완료되었습니다.\n` +
+    `${name}님, ${eventDate} ${contractType} 계약서 제출이 정상 완료되었습니다.\n` +
     `감사합니다.`;
 
   const result = await sendSolapiSms(phone, text);
