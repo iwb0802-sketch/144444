@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     `유형: ${contractType}\n` +
     `성명: ${name}\n` +
     `연락처: ${phone}\n` +
-    `행사일: ${eventDate}\n` +
+    `구분: ${eventDate}\n` +
     `금액: ${fee}`;
 
   const result = await sendSolapiSms(adminPhone, text);
