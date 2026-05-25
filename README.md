@@ -11,3 +11,7 @@
 - SOLAPI_API_SECRET
 - SOLAPI_FROM
 - DRIVE_WEBHOOK_URL
+
+
+## PDF
+서버에서 Puppeteer/Chromium으로 HTML 계약서 전문을 PDF 변환합니다.
