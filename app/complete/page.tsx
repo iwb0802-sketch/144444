@@ -9,7 +9,7 @@ import { ContractData } from "../../types";
 function CompleteInner() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
-  const pdfUrl = searchParams.get("pdfUrl") || "";
+  const searchPdfUrl = searchParams.get("pdfUrl") || "";
   const [data, setData] = useState<ContractData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +24,14 @@ function CompleteInner() {
 
   if (loading) return <main className="container"><div className="card">불러오는 중...</div></main>;
   if (!data) return <main className="container"><div className="card">계약서 데이터를 찾을 수 없습니다.</div></main>;
+
+  const pdfUrl =
+  searchPdfUrl ||
+  (data as any)?.pdfUrl ||
+  (data as any)?.pdf_url ||
+  (data as any)?.drivePdfUrl ||
+  (data as any)?.drive_pdf_url ||
+  "";
 
   return (
     <main className="container">
