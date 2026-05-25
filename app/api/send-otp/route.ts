@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const code = makeOtp();
   const expiresAt = Date.now() + 3 * 60 * 1000;
 
-  const text = `[BNS,INUS 뮤직]\n계약서 제출 인증번호는 ${code} 입니다.\n3분 이내에 입력해주세요.`;
+  const text = `[웨딩뮤직]\n계약서 제출 인증번호는 ${code} 입니다.\n3분 이내에 입력해주세요.`;
 
   const result = await sendSolapiSms(phone, text);
 
