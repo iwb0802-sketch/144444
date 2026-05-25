@@ -99,21 +99,42 @@ export default function YedoContractPage() {
     alert("휴대폰 인증이 완료되었습니다.");
   };
 
-  const extractDriveUrl = (backupResponse: any) => {
-    if (!backupResponse) return "";
-    if (backupResponse.url) return backupResponse.url;
-    if (backupResponse.result?.url) return backupResponse.result.url;
-    const raw = backupResponse.result;
-    if (typeof raw === "string") {
-      try {
-        const parsed = JSON.parse(raw);
-        return parsed.url || "";
-      } catch {
-        return "";
-      }
+const extractDriveUrl = (backupResponse: any): string => {
+  if (!backupResponse) return "";
+
+  if (typeof backupResponse === "string") {
+    try {
+      return extractDriveUrl(JSON.parse(backupResponse));
+    } catch {
+      const match = backupResponse.match(/https:\/\/drive\.google\.com\/[^\s"'<>]+/);
+      return match?.[0] || "";
     }
-    return "";
-  };
+  }
+
+  if (typeof backupResponse === "object") {
+    if (typeof backupResponse.url === "string" && backupResponse.url) {
+      return backupResponse.url;
+    }
+
+    if (typeof backupResponse.pdfUrl === "string" && backupResponse.pdfUrl) {
+      return backupResponse.pdfUrl;
+    }
+
+    if (typeof backupResponse.driveUrl === "string" && backupResponse.driveUrl) {
+      return backupResponse.driveUrl;
+    }
+
+    if (backupResponse.result) {
+      return extractDriveUrl(backupResponse.result);
+    }
+
+    const text = JSON.stringify(backupResponse);
+    const match = text.match(/https:\/\/drive\.google\.com\/[^\s"'<>]+/);
+    return match?.[0] || "";
+  }
+
+  return "";
+};
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,8 +218,18 @@ export default function YedoContractPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(backupPayload)
       });
-      const backupJson = await backupRes.json().catch(() => null);
-      pdfUrl = extractDriveUrl(backupJson);
+      const backupText = await backupRes.text();
+console.log("backup-drive response:", backupText);
+
+let backupJson: any = null;
+try {
+  backupJson = JSON.parse(backupText);
+} catch {
+  backupJson = backupText;
+}
+
+pdfUrl = extractDriveUrl(backupJson);
+console.log("extracted pdfUrl:", pdfUrl);
     } catch (err) {
       console.error("Drive backup request failed", err);
     }
