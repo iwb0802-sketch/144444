@@ -49,8 +49,8 @@ export async function POST(req: Request) {
     let result: unknown = text;
     try { result = JSON.parse(text); } catch {}
 
-    const url = extractUrl(result);
-    return NextResponse.json({ ok: true, result, url });
+    const url = extractUrl(result) || extractUrl(text);
+    return NextResponse.json({ ok: true,result,raw: text,url });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ ok: false, message: "구글드라이브 백업 중 오류가 발생했습니다.", url: "" }, { status: 500 });
