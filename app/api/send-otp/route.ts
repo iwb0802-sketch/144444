@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   const code = makeOtp();
   const expiresAt = Date.now() + 3 * 60 * 1000;
 
+  // 인증문자 브랜드만 웨딩뮤직으로 통일
   const text = `[웨딩뮤직]\n계약서 제출 인증번호는 ${code} 입니다.\n3분 이내에 입력해주세요.`;
 
   const result = await sendSolapiSms(phone, text);
@@ -30,7 +31,8 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         ok: false,
-        message: result.message || "인증번호 문자 발송에 실패했습니다."
+        message: result.message || "인증번호 문자 발송에 실패했습니다.",
+        detail: result
       },
       { status: 500 }
     );

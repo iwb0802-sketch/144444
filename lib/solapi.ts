@@ -47,7 +47,6 @@ export async function sendSolapiSms(toRaw: string, text: string) {
 
     if (!res.ok) {
       console.error("SOLAPI send failed", result);
-
       const reason =
         result?.errorMessage ||
         result?.message ||
@@ -56,7 +55,8 @@ export async function sendSolapiSms(toRaw: string, text: string) {
 
       return {
         ok: false,
-        message: `Solapi 발송 실패: ${reason}`
+        message: `Solapi 발송 실패: ${reason}`,
+        result
       };
     }
 
