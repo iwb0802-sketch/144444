@@ -32,10 +32,12 @@ export async function POST(req: Request) {
     const url = match?.[0] || "";
 
     return NextResponse.json({
-      ok: !!url,
-      url,
-      pdfUrl: url
-    });
+       ok: !!url,
+       url,
+       pdfUrl: url,
+       raw: text,
+       message: url ? "" : "PDF URL을 찾지 못했습니다."
+});
   } catch (error) {
     return NextResponse.json(
       {
