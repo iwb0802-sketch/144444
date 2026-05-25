@@ -48,7 +48,7 @@ function CompleteInner() {
         <div className="noPrint" style={{ marginBottom: 20 }}>
           <h1 className="title">제출 완료</h1>
           <p className="desc">
-            계약서가 정상 제출되었습니다. 아래 버튼으로 PDF 파일을 다운로드할 수 있습니다.
+            계약서가 정상 제출되었습니다. PDF 다운로드 버튼은 계약서 전문을 파일로 저장합니다.
           </p>
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -56,7 +56,7 @@ function CompleteInner() {
               PDF 다운로드
             </a>
             <button className="btn2" onClick={() => window.print()}>
-              인쇄/PDF 저장
+              현재 화면 인쇄
             </button>
             <Link className="btn2" href="/">
               메인

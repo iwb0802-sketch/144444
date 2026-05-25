@@ -12,6 +12,122 @@ function clean(value: unknown) {
   return String(value ?? "-");
 }
 
+function getContractTerms(type: string) {
+  const role =
+    type === "사회자" ? "사회 진행" :
+    type === "연주자" ? "연주 진행" :
+    "축가 진행";
+
+  const work =
+    type === "사회자"
+      ? [
+          "웨딩 및 행사 사회 진행",
+          "사전 대본 협의 및 진행 순서 확인",
+          "행사 진행에 필요한 사전 커뮤니케이션"
+        ]
+      : type === "연주자"
+      ? [
+          "웨딩 및 행사 연주 진행",
+          "사전 협의된 곡 및 편성에 따른 연주",
+          "악기 및 연주 준비"
+        ]
+      : [
+          "웨딩 및 행사 축가 진행",
+          "사전 협의된 곡 및 진행 내용 이행",
+          "행사 진행에 필요한 사전 협의 및 준비"
+        ];
+
+  const condition =
+    type === "사회자"
+      ? [
+          "을은 사전 협의된 대본과 진행 순서를 숙지하여야 한다.",
+          "을은 행사 분위기에 맞는 진행 태도와 발성을 유지하여야 한다."
+        ]
+      : type === "연주자"
+      ? [
+          "을은 본인의 악기 및 필요한 연주 준비물을 사전에 준비하여야 한다.",
+          "을은 행사 특성에 맞는 복장과 연주 태도를 유지하여야 한다."
+        ]
+      : [
+          "을은 사전 협의된 축가곡 및 진행 순서를 준수하여야 한다."
+        ];
+
+  return [
+    `BNS / INUS 뮤직 ${type} 계약서`,
+    "",
+    "제1조 (계약 당사자)",
+    "본 계약은 회사 BNS / INUS 뮤직(이하 “갑”)과 출연자(이하 “을”) 간 체결된다.",
+    "상호명: BNS / INUS 뮤직",
+    "대표자: 신유진",
+    "주소: 서울시 광진구 자양로 165 4층",
+    "",
+    "제2조 (계약 목적)",
+    `본 계약은 갑이 진행하는 웨딩 및 각종 행사에 있어 을을 ${role} 인력으로 등록하고, 향후 개별 요청 시 상호 협의 하에 진행하기 위한 기본 사항을 정함을 목적으로 한다.`,
+    "을은 갑의 요청에 대하여 자유롭게 수락 또는 거절할 수 있다.",
+    "다만, 을이 요청을 수락하여 일정이 확정된 이후 부득이한 사정으로 진행이 어려워질 경우, 가능한 한 즉시 갑에게 통지하여야 하며 원칙적으로 행사일 기준 최소 5일 전 사전 협의를 요청하여야 한다.",
+    "",
+    "제3조 (업무 내용)",
+    ...work.map((x) => `- ${x}`),
+    "",
+    "제4조 (진행 조건)",
+    "- 을은 개별 진행 요청을 수락한 경우 행사 시작 최소 1시간 전 현장에 도착하는 것을 원칙으로 한다.",
+    "- 을은 사전 협의된 내용과 진행 순서를 성실히 이행하여야 한다.",
+    "- 을은 행사 특성에 맞는 복장과 태도를 유지하여야 한다.",
+    ...condition.map((x) => `- ${x}`),
+    "",
+    "제5조 (계약 기간)",
+    "본 계약 기간은 계약 체결일로부터 1년으로 한다.",
+    "계약 종료 전 별도 해지 의사 표시가 없는 경우 상호 협의 하에 연장할 수 있다.",
+    "",
+    "제6조 (수수료 및 정산)",
+    "- 진행료 또는 출연료는 개별 행사별 별도 협의한다.",
+    "- 행사 종료 후 다음 주 금요일까지 정산을 원칙으로 한다.",
+    "- 비용은 을이 제출한 계좌로 지급한다.",
+    "- 계좌 정보는 계약 체결 시 또는 추후 별도 제출할 수 있다.",
+    "",
+    "제7조 (지각 및 불이행)",
+    "사전 협의 없는 지각 발생 시 아래 기준을 적용한다.",
+    "- 행사 시작 30분 전 도착: 5,000원 차감",
+    "- 행사 시작 20분 전 도착: 10,000원 차감",
+    "- 행사 정시 도착: 20,000원 차감",
+    "을이 계약조건대로 이행하지 않아 갑에게 금전적 손해가 발생한 경우, 을은 실제 발생한 손해 범위 내에서 배상 책임을 질 수 있다.",
+    "다만, 부득이한 사정이 발생한 경우 예식시간 최소 3시간 전까지 갑에게 통보하고 상호 협의한 경우에는 예외로 한다.",
+    "단, 천재지변, 회사 요청 또는 지시, 교통사고·사건사고 등 객관적 증빙 가능 사유, 기타 갑이 인정하는 불가피한 사유는 예외로 한다.",
+    "을이 확정된 일정을 정당한 사유 없이 이행하지 않거나 행사 진행에 중대한 차질을 발생시키는 경우, 갑은 향후 배정 제한 또는 계약 해지를 할 수 있다.",
+    "",
+    "제8조 (계약 해지)",
+    "상호 합의, 반복적인 계약 위반, 신뢰 관계 훼손, 확정된 일정의 반복적인 불이행이 발생한 경우 계약 해지가 가능하다.",
+    "",
+    "제9조 (개인정보 수집 및 이용 동의)",
+    "갑은 계약 진행 및 운영 관리를 목적으로 성명, 연락처, 계좌정보, 전자서명, 접속기록, 인증기록을 수집·이용할 수 있다.",
+    "이 정보는 행사 요청, 계약 관리, 정산, 연락, 분쟁 대응 및 계약 증빙 목적으로 활용된다.",
+    "",
+    "제10조 (전자계약 체결)",
+    "본 계약은 전자 방식으로 체결되며, 휴대폰 OTP 인증, 전자서명, 계약서 제출 완료 시 계약이 성립한 것으로 본다. 전자 기록은 계약 체결 증빙 자료로 활용될 수 있다."
+  ];
+}
+
+function writeLine(doc: jsPDF, text: string, yObj: { y: number }, options?: { bold?: boolean; center?: boolean; size?: number }) {
+  if (yObj.y > 282) {
+    doc.addPage();
+    yObj.y = 18;
+  }
+
+  doc.setFont("helvetica", options?.bold ? "bold" : "normal");
+  doc.setFontSize(options?.size || 10);
+
+  const maxWidth = options?.center ? 180 : 172;
+  const lines = doc.splitTextToSize(text || " ", maxWidth);
+
+  if (options?.center) {
+    doc.text(lines, 105, yObj.y, { align: "center" });
+  } else {
+    doc.text(lines, 20, yObj.y);
+  }
+
+  yObj.y += Math.max(6, lines.length * 5.2) + 1;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id") || "";
@@ -39,70 +155,52 @@ export async function GET(req: Request) {
   }
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const yObj = { y: 16 };
 
-  // jsPDF 기본 폰트는 한글 폰트 임베딩이 없으므로, 파일 다운로드 안정성을 우선하여 영문 라벨 중심으로 생성
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("BNS / INUS MUSIC CONTRACT", 105, 18, { align: "center" });
+  // NOTE: jsPDF 기본 폰트는 한글 임베딩이 없어 일부 뷰어에서 한글 표시가 제한될 수 있음.
+  // 현재는 서버 다운로드 안정성을 우선하고, 계약서 전문 텍스트를 PDF에 포함한다.
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text("Electronic contract record", 105, 25, { align: "center" });
+  const title = `BNS / INUS 뮤직 ${clean(data.contract_type)} 계약서`;
+  writeLine(doc, title, yObj, { bold: true, center: true, size: 16 });
+  yObj.y += 4;
 
-  let y = 42;
+  writeLine(doc, "계약자 정보", yObj, { bold: true, size: 12 });
+  writeLine(doc, `성명: ${clean(data.name)}`, yObj);
+  writeLine(doc, `연락처: ${clean(data.phone)}`, yObj);
+  writeLine(doc, `계약유형: ${clean(data.contract_type)}`, yObj);
+  writeLine(doc, `계좌정보: ${clean(data.bank_info || "추후 제출 가능")}`, yObj);
+  writeLine(doc, `특이사항: ${clean(data.memo || "-")}`, yObj);
+  writeLine(doc, `제출시간: ${data.submitted_at ? new Date(data.submitted_at).toLocaleString("ko-KR") : "-"}`, yObj);
+  writeLine(doc, `계약 ID: ${clean(data.id)}`, yObj);
+  yObj.y += 4;
 
-  const line = (label: string, value: unknown) => {
-    const text = `${label}: ${clean(value)}`;
-    const lines = doc.splitTextToSize(text, 170);
-    doc.text(lines, 20, y);
-    y += lines.length * 6 + 3;
-    if (y > 265) {
-      doc.addPage();
-      y = 20;
+  writeLine(doc, "계약서 내용", yObj, { bold: true, size: 12 });
+  const terms = getContractTerms(clean(data.contract_type));
+  terms.forEach((line) => {
+    if (line === "") {
+      yObj.y += 3;
+      return;
     }
-  };
-
-  doc.setFontSize(11);
-  line("Contract Type", data.contract_type);
-  line("Name", data.name);
-  line("Phone", data.phone);
-  line("Bank Info", data.bank_info || "Can be submitted later");
-  line("Memo", data.memo || "-");
-  line("Submitted At", data.submitted_at ? new Date(data.submitted_at).toLocaleString("ko-KR") : "-");
-  line("Contract ID", data.id);
-  line("User Agent", data.user_agent || "-");
-
-  y += 8;
-  doc.setFont("helvetica", "bold");
-  doc.text("Agreement", 20, y);
-  y += 8;
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  [
-    "This contract was submitted through electronic signature and phone OTP verification.",
-    "The submitted record may be used as evidence of contract execution.",
-    "Detailed contract terms are displayed on the electronic contract page and stored in the system records."
-  ].forEach((t) => {
-    const lines = doc.splitTextToSize("- " + t, 170);
-    doc.text(lines, 24, y);
-    y += lines.length * 6 + 2;
+    const isHeading = line.startsWith("제") && line.includes("조");
+    writeLine(doc, line, yObj, { bold: isHeading, size: isHeading ? 11 : 9.5 });
   });
 
   if (data.signature) {
+    if (yObj.y > 235) {
+      doc.addPage();
+      yObj.y = 18;
+    }
+    yObj.y += 6;
+    writeLine(doc, "전자서명", yObj, { bold: true, size: 12 });
     try {
-      y += 8;
-      if (y > 230) {
-        doc.addPage();
-        y = 20;
-      }
-      doc.setFont("helvetica", "bold");
-      doc.text("Signature", 20, y);
-      y += 5;
-      doc.addImage(data.signature, "PNG", 20, y, 70, 35);
+      doc.addImage(data.signature, "PNG", 20, yObj.y, 72, 36);
+      yObj.y += 42;
     } catch (e) {
       console.error("signature add failed", e);
     }
   }
+
+  writeLine(doc, "본 계약은 휴대폰 OTP 인증, 전자서명, 계약서 제출 완료를 통해 전자 방식으로 체결되었으며, 제출 기록은 계약 체결 증빙 자료로 활용될 수 있습니다.", yObj, { size: 9 });
 
   const arrayBuffer = doc.output("arraybuffer");
   const fileName = `${safeFileName(data.name)}_${safeFileName(data.contract_type)}_contract.pdf`;
