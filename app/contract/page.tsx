@@ -1,17 +1,13 @@
-import Link from "next/link";
-
-export default function ContractSelectPage() {
+export default function ContractPage() {
   return (
-    <main className="container">
-      <div className="card" style={{maxWidth:760, margin:"40px auto"}}>
-        <h1 className="title">계약서 선택</h1>
-        <p className="desc">작성할 계약서 유형을 선택해주세요.</p>
-        <div style={{display:"grid", gap:12}}>
-          <Link className="btn" href="/contract/singer">축가자 계약서</Link>
-          <Link className="btn" href="/contract/host">사회자 계약서</Link>
-          <Link className="btn" href="/contract/player">연주자 계약서</Link>
-        </div>
-      </div>
+    <main className="hero">
+      <section className="heroCard" style={{maxWidth:720, textAlign:"center"}}>
+        <div className="brandPill">전자계약 시스템</div>
+        <h1 className="heroTitle">잘못된 접근입니다</h1>
+        <p className="heroDesc" style={{marginLeft:"auto", marginRight:"auto"}}>
+          전달받은 계약서 링크로 접속해주세요.
+        </p>
+      </section>
     </main>
   );
 }

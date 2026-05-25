@@ -11,9 +11,10 @@ export async function POST(req: Request) {
   const phone = String(body.phone || "-");
   const contractType = String(body.contractType || "-");
 
+  const isCustomer = contractType.includes("고객 계약서 제출");
+
   const text =
-    `[BNS,INUS 뮤직 계약서 제출]\n` +
-    `유형: ${contractType}\n` +
+    `${isCustomer ? "[" + contractType + "]" : "[BNS,INUS 뮤직 계약서 제출]"}\n` +
     `성명: ${name}\n` +
     `연락처: ${phone}\n` +
     `구분: 등록계약`;
