@@ -59,6 +59,7 @@ export default function ContractPage() {
       setOtpError("연락처를 먼저 입력해주세요.");
       return;
     }
+
     setOtpLoading(true);
     const res = await fetch("/api/send-otp", {
       method: "POST",
@@ -67,10 +68,12 @@ export default function ContractPage() {
     });
     const data = await res.json().catch(() => ({}));
     setOtpLoading(false);
+
     if (!res.ok) {
       setOtpError(data.message || "인증번호 발송에 실패했습니다.");
       return;
     }
+
     setOtpSent(true);
     setOtpVerified(false);
     alert("인증번호를 문자로 발송했습니다.");
@@ -83,6 +86,7 @@ export default function ContractPage() {
       setOtpError("인증번호를 입력해주세요.");
       return;
     }
+
     setOtpLoading(true);
     const res = await fetch("/api/verify-otp", {
       method: "POST",
@@ -91,12 +95,32 @@ export default function ContractPage() {
     });
     const data = await res.json().catch(() => ({}));
     setOtpLoading(false);
+
     if (!res.ok) {
       setOtpError(data.message || "인증번호 확인에 실패했습니다.");
       return;
     }
+
     setOtpVerified(true);
     alert("휴대폰 인증이 완료되었습니다.");
+  };
+
+  const extractDriveUrl = (backupResponse: any) => {
+    if (!backupResponse) return "";
+    if (backupResponse.url) return backupResponse.url;
+    if (backupResponse.result?.url) return backupResponse.result.url;
+
+    const raw = backupResponse.result;
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw);
+        return parsed.url || "";
+      } catch {
+        return "";
+      }
+    }
+
+    return "";
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -109,6 +133,7 @@ export default function ContractPage() {
       alert("성명, 연락처, 통합 동의 체크는 필수입니다.");
       return;
     }
+
     if (!otpVerified) {
       alert("제출 전 휴대폰 인증을 완료해주세요.");
       return;
@@ -158,12 +183,24 @@ export default function ContractPage() {
       userAgent: typeof navigator !== "undefined" ? navigator.userAgent : ""
     };
 
-    fetch("/api/backup-drive", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(backupPayload) }).catch(console.error);
+    let pdfUrl = "";
+    try {
+      const backupRes = await fetch("/api/backup-drive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(backupPayload)
+      });
+      const backupJson = await backupRes.json().catch(() => null);
+      pdfUrl = extractDriveUrl(backupJson);
+    } catch (err) {
+      console.error("Drive backup request failed", err);
+    }
+
     fetch("/api/notify-sms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: form.name, phone: form.phone, contractType: "축가자" }) }).catch(console.error);
     fetch("/api/notify-user-sms", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: form.name, phone: form.phone, contractType: "축가자" }) }).catch(console.error);
 
     setSaving(false);
-    router.push(`/complete?id=${data.id}`);
+    router.push(`/complete?id=${data.id}${pdfUrl ? `&pdfUrl=${encodeURIComponent(pdfUrl)}` : ""}`);
   };
 
   return (
@@ -272,11 +309,7 @@ export default function ContractPage() {
         <div className="field" style={{background:"#f8fafc", padding:16, borderRadius:12, border:"1px solid #e5e7eb"}}>
           <span>휴대폰 인증 *</span>
           <p style={{margin:"0 0 10px", color:"#666", fontSize:14}}>제출 전 입력한 연락처로 인증번호를 발송하고 확인합니다.</p>
-          {otpError && (
-            <div className="alert" style={{marginTop:0, marginBottom:10}}>
-              {otpError}
-            </div>
-          )}
+          {otpError && <div className="alert" style={{marginTop:0, marginBottom:10}}>{otpError}</div>}
           <div style={{display:"flex", gap:8, flexWrap:"wrap"}}>
             <button type="button" className="btn2" onClick={sendOtp} disabled={otpLoading || saving}>{otpSent ? "인증번호 재발송" : "인증번호 발송"}</button>
             <input className="input" style={{maxWidth:180}} value={otpCode} onChange={(e) => setOtpCode(e.target.value)} placeholder="6자리 입력" disabled={!otpSent || otpVerified} />
