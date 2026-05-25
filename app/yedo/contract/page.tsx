@@ -219,7 +219,7 @@ const extractDriveUrl = (backupResponse: any): string => {
         body: JSON.stringify(backupPayload)
       });
       const backupText = await backupRes.text();
-console.log("backup-drive response:", backupText);
+
 
 let backupJson: any = null;
 try {
@@ -229,9 +229,8 @@ try {
 }
 
 pdfUrl = extractDriveUrl(backupJson);
-console.log("extracted pdfUrl:", pdfUrl);
 
-alert("pdfUrl = " + pdfUrl + "\n\nbackupText = " + backupText);     
+
     } catch (err) {
       console.error("Drive backup request failed", err);
     }
