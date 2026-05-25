@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BNS / INUS 뮤직 전자계약",
+  title: "웨딩뮤직 전자계약서",
   description: "전자계약 시스템",
 };
 
