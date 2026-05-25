@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
+
   const name = String(body.name || "");
   const phone = String(body.phone || "");
   const contractType = String(body.contractType || "계약서");
@@ -15,6 +16,10 @@ export async function POST(req: Request) {
     `감사합니다.`;
 
   const result = await sendSolapiSms(phone, text);
-  if (!result.ok) return NextResponse.json({ ok: false, message: "작성자 완료 문자 발송에 실패했습니다.", result }, { status: 500 });
+
+  if (!result.ok) {
+    return NextResponse.json({ ok: false, message: "작성자 완료 문자 발송에 실패했습니다.", result }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }

@@ -16,8 +16,13 @@ export async function POST(req: Request) {
   const text = `[BNS,INUS 뮤직]\n계약서 제출 인증번호는 ${code} 입니다.\n3분 이내에 입력해주세요.`;
 
   const result = await sendSolapiSms(phone, text);
+
   if (!result.ok) {
-    return NextResponse.json({ ok: false, message: "인증번호 문자 발송에 실패했습니다.", result }, { status: 500 });
+    return NextResponse.json({
+      ok: false,
+      message: "인증번호 문자 발송에 실패했습니다.",
+      detail: result
+    }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

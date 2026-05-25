@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const adminPhone = (process.env.ADMIN_PHONE || "").replace(/[^0-9]/g, "");
+
   const name = String(body.name || "-");
   const phone = String(body.phone || "-");
   const contractType = String(body.contractType || "-");
@@ -18,6 +19,10 @@ export async function POST(req: Request) {
     `구분: 등록계약`;
 
   const result = await sendSolapiSms(adminPhone, text);
-  if (!result.ok) return NextResponse.json({ ok: false, result }, { status: 500 });
+
+  if (!result.ok) {
+    return NextResponse.json({ ok: false, result }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true, result });
 }
