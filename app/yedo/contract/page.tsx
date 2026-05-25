@@ -230,6 +230,8 @@ try {
 
 pdfUrl = extractDriveUrl(backupJson);
 console.log("extracted pdfUrl:", pdfUrl);
+
+alert("pdfUrl = " + pdfUrl + "\n\nbackupText = " + backupText);     
     } catch (err) {
       console.error("Drive backup request failed", err);
     }
