@@ -24,6 +24,33 @@ function CompleteInner() {
   if (loading) return <main className="container"><div className="card">불러오는 중...</div></main>;
   if (!data) return <main className="container"><div className="card">계약서 데이터를 찾을 수 없습니다.</div></main>;
 
+  
+const getTermsUrl = (contractType: string) => {
+  switch (contractType) {
+    case "예식도우미":
+      return "/terms/yedo-terms.pdf";
+
+    case "축가":
+      return "/terms/singer-terms.pdf";
+
+    case "사회자":
+      return "/terms/mc-terms.pdf";
+
+    case "연주자":
+      return "/terms/player-terms.pdf";
+
+    case "이너스뮤직 고객":
+      return "/terms/inus-customer-terms.pdf";
+
+    case "비엔에스뮤직 고객":
+      return "/terms/bns-customer-terms.pdf";
+
+    default:
+      return "/terms/contract-terms.pdf";
+  }
+};
+
+const termsUrl = getTermsUrl(data.contract_type);
 
   return (
     <main className="container">
@@ -31,18 +58,38 @@ function CompleteInner() {
         <div className="noPrint" style={{marginBottom:20}}>
           <h1 className="title">제출 완료</h1>
          <p className="desc">
-  계약서가 정상 제출되었습니다.
-  아래 계약 내용은 제출 기록 기준으로 표시되며,
-  원본 계약서는 요청 시 발부됩니다.
+  전자계약이 정상 체결되었습니다.
+  <br />
+  <br />
+  아래 내용은 제출 기록 기준 계약 정보이며,
+  상세 계약 약관은 아래 버튼을 통해 다운로드하실 수 있습니다.
+  <br />
+  <br />
+  (계약 원본 PDF는 요청 시 발송해드립니다.)
 </p>
-          <div style={{display:"flex", gap:10, flexWrap:"wrap"}}>
-            <button className="btn" disabled>
-  원본 계약서는 요청 시 발부됩니다
-</button>
-            <button className="btn2" onClick={() => window.print()}>현재 화면 인쇄</button>
-            <Link className="btn2" href="/">닫기</Link>
-          </div>
+          <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+  <a
+    className="btn"
+    href={termsUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    상세 계약 약관 다운로드
+  </a>
+
+  <button
+    className="btn2"
+    onClick={() => window.print()}
+  >
+    현재 화면 인쇄
+  </button>
+
+  <Link className="btn2" href="/">
+    닫기
+  </Link>
+</div>
         </div>
+
         <section className="printArea">
           <div className="printTitle">{data.contract_type} 계약서</div>
           <div className="row"><div className="label">성명</div><div className="value">{data.name}</div></div>
