@@ -18,30 +18,54 @@ export async function sendSolapiSms(toRaw: string, text: string) {
   const to = String(toRaw || "").replace(/[^0-9]/g, "");
 
   if (!apiKey || !apiSecret || !from || !to) {
+    const missing = [
+      !apiKey ? "SOLAPI_API_KEY" : "",
+      !apiSecret ? "SOLAPI_API_SECRET" : "",
+      !from ? "SOLAPI_FROM" : "",
+      !to ? "수신번호" : ""
+    ].filter(Boolean).join(", ");
+
     return {
       ok: false,
-      message: "SOLAPI 환경변수 또는 전화번호가 없습니다.",
-      debug: { hasApiKey: !!apiKey, hasApiSecret: !!apiSecret, hasFrom: !!from, hasTo: !!to }
+      message: `문자 발송 설정이 부족합니다: ${missing}`
     };
   }
 
-  const res = await fetch("https://api.solapi.com/messages/v4/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": makeAuthorization(apiKey, apiSecret)
-    },
-    body: JSON.stringify({
-      message: { to, from, text }
-    })
-  });
+  try {
+    const res = await fetch("https://api.solapi.com/messages/v4/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": makeAuthorization(apiKey, apiSecret)
+      },
+      body: JSON.stringify({
+        message: { to, from, text }
+      })
+    });
 
-  const result = await res.json().catch(() => ({}));
+    const result = await res.json().catch(() => ({}));
 
-  if (!res.ok) {
-    console.error("SOLAPI send failed", result);
-    return { ok: false, result };
+    if (!res.ok) {
+      console.error("SOLAPI send failed", result);
+
+      const reason =
+        result?.errorMessage ||
+        result?.message ||
+        result?.errorCode ||
+        JSON.stringify(result);
+
+      return {
+        ok: false,
+        message: `Solapi 발송 실패: ${reason}`
+      };
+    }
+
+    return { ok: true, result };
+  } catch (error) {
+    console.error("SOLAPI network failed", error);
+    return {
+      ok: false,
+      message: `Solapi 요청 오류: ${String(error)}`
+    };
   }
-
-  return { ok: true, result };
 }

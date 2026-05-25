@@ -13,7 +13,10 @@ export async function POST(req: Request) {
   const phone = normalizePhone(String(body.phone || ""));
 
   if (!phone || phone.length < 10) {
-    return NextResponse.json({ ok: false, message: "연락처를 정확히 입력해주세요." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, message: "연락처를 정확히 입력해주세요." },
+      { status: 400 }
+    );
   }
 
   const code = makeOtp();
@@ -24,16 +27,17 @@ export async function POST(req: Request) {
   const result = await sendSolapiSms(phone, text);
 
   if (!result.ok) {
-    return NextResponse.json({
-      ok: false,
-      message: "인증번호 문자 발송에 실패했습니다.",
-      detail: result
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        ok: false,
+        message: result.message || "인증번호 문자 발송에 실패했습니다."
+      },
+      { status: 500 }
+    );
   }
 
   const res = NextResponse.json({ ok: true });
 
-  // Vercel 서버리스 메모리 저장 대신 브라우저별 HttpOnly 쿠키로 OTP 상태 유지
   res.cookies.set("otp_phone", phone, {
     httpOnly: true,
     sameSite: "lax",
