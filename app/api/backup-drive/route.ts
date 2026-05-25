@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     });
 
     const text = await res.text();
+    console.log("Apps Script response:", text);
 
     if (!res.ok) {
       console.error("Drive backup failed", text);
