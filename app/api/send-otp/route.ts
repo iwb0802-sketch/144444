@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { createOtp, normalizePhone } from "@/lib/otp-store";
+import { normalizePhone } from "@/lib/otp-store";
 import { sendSolapiSms } from "@/lib/solapi";
 
 export const runtime = "nodejs";
+
+function makeOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
@@ -12,7 +16,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, message: "연락처를 정확히 입력해주세요." }, { status: 400 });
   }
 
-  const code = createOtp(phone);
+  const code = makeOtp();
+  const expiresAt = Date.now() + 3 * 60 * 1000;
+
   const text = `[BNS,INUS 뮤직]\n계약서 제출 인증번호는 ${code} 입니다.\n3분 이내에 입력해주세요.`;
 
   const result = await sendSolapiSms(phone, text);
@@ -25,5 +31,40 @@ export async function POST(req: Request) {
     }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  const res = NextResponse.json({ ok: true });
+
+  // Vercel 서버리스 메모리 저장 대신 브라우저별 HttpOnly 쿠키로 OTP 상태 유지
+  res.cookies.set("otp_phone", phone, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 180
+  });
+
+  res.cookies.set("otp_code", code, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 180
+  });
+
+  res.cookies.set("otp_expires", String(expiresAt), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 180
+  });
+
+  res.cookies.set("otp_verified", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 0
+  });
+
+  return res;
 }
