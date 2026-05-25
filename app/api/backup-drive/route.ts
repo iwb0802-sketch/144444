@@ -1,22 +1,29 @@
 import { NextResponse } from "next/server";
 
-function extractUrl(value: unknown): string {
+function extractUrl(value: any): string {
   if (!value) return "";
-
-  if (typeof value === "object") {
-    const obj = value as any;
-    if (typeof obj.url === "string") return obj.url;
-    if (obj.result) return extractUrl(obj.result);
-  }
 
   if (typeof value === "string") {
     try {
-      const parsed = JSON.parse(value);
-      return extractUrl(parsed);
+      return extractUrl(JSON.parse(value));
     } catch {
-      const match = value.match(/https:\/\/drive\.google\.com\/[^"\s]+/);
-      return match?.[0] || "";
+      const normal = value.match(/https:\/\/drive\.google\.com\/file\/d\/[^"\\\s]+/);
+      if (normal?.[0]) return normal[0];
+
+      const escaped = value.match(/https:\\\/\\\/drive\.google\.com\\\/file\\\/d\\\/[^"\\\s]+/);
+      if (escaped?.[0]) return escaped[0].replace(/\\\//g, "/");
+
+      return "";
     }
+  }
+
+  if (typeof value === "object") {
+    if (typeof value.url === "string") return value.url;
+    if (typeof value.fileUrl === "string") return value.fileUrl;
+    if (typeof value.driveUrl === "string") return value.driveUrl;
+    if (value.result) return extractUrl(value.result);
+    if (value.raw) return extractUrl(value.raw);
+    if (value.message) return extractUrl(value.message);
   }
 
   return "";
@@ -26,7 +33,11 @@ export async function POST(req: Request) {
   const webhookUrl = process.env.DRIVE_WEBHOOK_URL || "";
 
   if (!webhookUrl) {
-    return NextResponse.json({ ok: true, skipped: true, message: "DRIVE_WEBHOOK_URL 환경변수가 없어 구글드라이브 백업은 건너뛰었습니다.", url: "" });
+    return NextResponse.json({
+      ok: false,
+      message: "DRIVE_WEBHOOK_URL 환경변수가 없습니다.",
+      url: ""
+    }, { status: 500 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -34,26 +45,32 @@ export async function POST(req: Request) {
   try {
     const res = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(body),
       redirect: "follow"
     });
 
-    const text = await res.text();
-    console.log("Apps Script response:", text);
+    const raw = await res.text();
 
-    if (!res.ok) {
-      console.error("Drive backup failed", text);
-      return NextResponse.json({ ok: false, message: text, url: "" }, { status: 500 });
-    }
+    let result: any = raw;
+    try {
+      result = JSON.parse(raw);
+    } catch {}
 
-    let result: unknown = text;
-    try { result = JSON.parse(text); } catch {}
+    const url = extractUrl(result) || extractUrl(raw);
 
-    const url = extractUrl(result) || extractUrl(text);
-    return NextResponse.json({ ok: true,result,raw: text,url });
+    return NextResponse.json({
+      ok: !!url,
+      result,
+      raw,
+      url,
+      message: url ? "" : "Google Drive PDF URL을 찾지 못했습니다."
+    });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ ok: false, message: "구글드라이브 백업 중 오류가 발생했습니다.", url: "" }, { status: 500 });
+    return NextResponse.json({
+      ok: false,
+      message: String(error),
+      url: ""
+    }, { status: 500 });
   }
 }
