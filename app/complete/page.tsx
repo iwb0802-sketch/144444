@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "../../supabase";
@@ -10,8 +10,6 @@ function CompleteInner() {
   const id = useSearchParams().get("id") || "";
   const [data, setData] = useState<ContractData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pdfLoading, setPdfLoading] = useState(false);
-  const printRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -27,77 +25,6 @@ function CompleteInner() {
 
     if (id) load();
   }, [id]);
-
-  const downloadPdf = async () => {
-    if (!printRef.current || !data) return;
-
-    try {
-      setPdfLoading(true);
-
-      const html2canvas = (await import("html2canvas")).default;
-      const jsPDF = (await import("jspdf")).default;
-
-      const canvas = await html2canvas(printRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const margin = 8;
-      const usableWidth = pageWidth - margin * 2;
-      const imgHeight = (canvas.height * usableWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = margin;
-
-      pdf.addImage(imgData, "PNG", margin, position, usableWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", margin, position, usableWidth, imgHeight);
-        heightLeft -= pageHeight - margin * 2;
-      }
-
-      const safeName = (data.name || "계약자").replace(/[\\/:*?"<>|]/g, "_");
-      const safeType = (data.contract_type || "계약서").replace(/[\\/:*?"<>|]/g, "_");
-      const fileName = `${safeName}_${safeType}_계약서.pdf`;
-
-      // iPhone Safari 대응: pdf.save() 대신 Blob URL 다운로드/열기
-      const blob = pdf.output("blob");
-      const url = URL.createObjectURL(blob);
-
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        // iOS Safari는 download 속성을 무시하는 경우가 있어 새 탭으로 열어 저장 가능하게 처리
-        window.open(url, "_blank");
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        a.style.display = "none";
-        document.body.appendChild(a);
-        a.click();
-
-        setTimeout(() => {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        }, 1000);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("PDF 다운로드 중 오류가 발생했습니다. 아래 인쇄/PDF 저장 버튼을 이용해주세요.");
-    } finally {
-      setPdfLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -121,13 +48,13 @@ function CompleteInner() {
         <div className="noPrint" style={{ marginBottom: 20 }}>
           <h1 className="title">제출 완료</h1>
           <p className="desc">
-            계약서가 정상 제출되었습니다. PDF 다운로드가 안 되는 경우 인쇄/PDF 저장을 이용해주세요.
+            계약서가 정상 제출되었습니다. 아래 버튼으로 PDF 파일을 다운로드할 수 있습니다.
           </p>
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button className="btn" onClick={downloadPdf} disabled={pdfLoading}>
-              {pdfLoading ? "PDF 생성 중..." : "PDF 다운로드"}
-            </button>
+            <a className="btn" href={`/api/download-pdf?id=${data.id}`} target="_blank" rel="noopener noreferrer">
+              PDF 다운로드
+            </a>
             <button className="btn2" onClick={() => window.print()}>
               인쇄/PDF 저장
             </button>
@@ -137,7 +64,7 @@ function CompleteInner() {
           </div>
         </div>
 
-        <section className="printArea" ref={printRef}>
+        <section className="printArea">
           <div className="printTitle">BNS / INUS 뮤직 {data.contract_type} 계약서</div>
 
           <div className="row">
